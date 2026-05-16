@@ -380,7 +380,7 @@ function CoachChatScreen({ onClose, initialMessage }: { onClose: () => void; ini
             <Text style={ccStyles.backBtnText}>←</Text>
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={ccStyles.title}>FitOS Coach</Text>
+            <Text style={ccStyles.title}>SBL Coach</Text>
             <Text style={ccStyles.subtitle}>Powered by Claude · Science-backed</Text>
           </View>
           <TouchableOpacity onPress={clearCoachHistory}>
@@ -399,7 +399,7 @@ function CoachChatScreen({ onClose, initialMessage }: { onClose: () => void; ini
           {display.length === 0 && (
             <View style={ccStyles.emptyState}>
               <Text style={ccStyles.emptyIcon}>🤖</Text>
-              <Text style={ccStyles.emptyTitle}>FitOS Coach</Text>
+              <Text style={ccStyles.emptyTitle}>SBL Coach</Text>
               <Text style={ccStyles.emptySubtitle}>
                 Ask me anything about training, nutrition, recovery, or your programme.
               </Text>
@@ -1416,7 +1416,7 @@ export default function HomeScreen() {
             <Text style={{ fontSize: 16 }}>🤖</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.coachPrompt}>Ask FitOS Coach…</Text>
+            <Text style={styles.coachPrompt}>Ask SBL Coach…</Text>
             <Text style={styles.coachSub}>POWERED BY CLAUDE · SCIENCE-BACKED</Text>
           </View>
           <Text style={styles.coachChevron}>›</Text>

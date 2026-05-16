@@ -36,7 +36,7 @@ import { scaleMacros, scaleMicronutrients, scaleFatBreakdown } from '../utils/ma
 import { exerciseLibrary } from '../data/exercises';
 import { submitScore } from '../services/leaderboardService';
 
-interface FitOSState {
+interface SBLState {
   userProfile: UserProfile | null;
   currentProgram: TrainingProgram | null;
   completedSessionCount: number;
@@ -89,7 +89,7 @@ interface FitOSState {
 
 const todayKey = () => new Date().toISOString().split('T')[0];
 
-export const useStore = create<FitOSState>()(
+export const useStore = create<SBLState>()(
   persist(
     (set, get) => ({
       userProfile: null,

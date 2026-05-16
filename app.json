@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "FitOS",
-    "slug": "fitos",
+    "name": "SBL Companion",
+    "slug": "sbl-companion",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

@@ -1,4 +1,4 @@
-# CLAUDE.md — FitOS (MyApp)
+# CLAUDE.md — SBL Companion (MyApp)
 
 This file provides guidance to Claude Code when working with code in this repository.
 
@@ -17,7 +17,7 @@ No test runner or linter is configured yet.
 
 ## What This Is
 
-FitOS is a science-based lifting and nutrition OS built with **Expo SDK 54 + React Native 0.81.5**. It was migrated from a Vite/React web app (`z:\work\projects\FitOS`) into this Expo project. The web app is kept for reference during migration.
+SBL Companion is a science-based lifting and nutrition OS built with **Expo SDK 54 + React Native 0.81.5**. It was migrated from a Vite/React web app (`z:\work\projects\SBL Companion`) into this Expo project. The web app is kept for reference during migration.
 
 ## Architecture
 
@@ -64,7 +64,7 @@ FitOS is a science-based lifting and nutrition OS built with **Expo SDK 54 + Rea
 
 ## Key config
 
-- `app.json`: name `FitOS`, slug `fitos`, dark theme, `newArchEnabled: true`, edge-to-edge Android.
+- `app.json`: name `SBL Companion`, slug `sbl-companion`, dark theme, `newArchEnabled: true`, edge-to-edge Android.
 - `tsconfig.json`: extends `expo/tsconfig.base` with `strict: true`.
 - No Babel config — uses Expo's default transformer.
 

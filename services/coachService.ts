@@ -1,4 +1,4 @@
-// coachService.ts — Claude API integration for FitOS Coach
+// coachService.ts — Claude API integration for SBL Coach
 // API key MUST be provided via EXPO_PUBLIC_ANTHROPIC_API_KEY env var — never hardcode it
 
 import type { CoachMessage, CheckIn, UserProfile, WorkoutLog } from '../types';
@@ -57,7 +57,7 @@ function buildSystemPrompt(
   recentWorkouts: WorkoutLog[],
 ): string {
   const lines = [
-    'You are FitOS Coach — a science-backed fitness AI for Indian gym-goers.',
+    'You are SBL Coach — a science-backed fitness AI for Indian gym-goers.',
     'Keep responses under 150 words unless the user explicitly asks for more detail.',
     'Be direct, evidence-based, and cite research when relevant (e.g. Helms et al. 2014).',
     'Never recommend steroids, extreme caloric restriction, or unsupported supplements.',

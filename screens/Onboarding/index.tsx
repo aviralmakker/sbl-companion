@@ -546,7 +546,7 @@ export default function OnboardingScreen() {
 
         <View style={[styles.onboardFooter, { paddingBottom: insets.bottom + 16 }]}>
           <TouchableOpacity style={styles.btnPrimary} onPress={handleLaunch} activeOpacity={0.8}>
-            <Text style={styles.btnPrimaryText}>Launch FitOS →</Text>
+            <Text style={styles.btnPrimaryText}>Launch SBL Companion →</Text>
           </TouchableOpacity>
         </View>
       </View>

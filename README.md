@@ -1,6 +1,6 @@
-# FitOS — Mobile
+# SBL Companion
 
-A science-based fitness OS for lifters. Tracks workouts, nutrition, and progress with AI coaching built in.
+A science-based lifting companion app for serious gym-goers. Tracks workouts, nutrition, and progress with AI coaching built in.
 
 Built with Expo (React Native) — runs on iOS and Android via Expo Go or a native build.
 
@@ -66,8 +66,8 @@ Built with Expo (React Native) — runs on iOS and Android via Expo Go or a nati
 ### Install
 
 ```bash
-git clone https://github.com/aviralmakker/fitos-mobile.git
-cd fitos-mobile
+git clone https://github.com/aviralmakker/sbl-companion.git
+cd sbl-companion
 npm install
 ```
 
