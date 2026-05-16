@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,6 +11,9 @@ import { BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { DMMono_400Regular, DMMono_500Medium } from '@expo-google-fonts/dm-mono';
 import { DMSans_400Regular, DMSans_500Medium } from '@expo-google-fonts/dm-sans';
 import * as SplashScreen from 'expo-splash-screen';
+import type { Session } from '@supabase/supabase-js';
+import { supabase } from './lib/supabase';
+import { pullUserData } from './services/syncService';
 import { useStore } from './store';
 import { Colors } from './constants/colors';
 
@@ -19,6 +22,7 @@ import WorkoutScreen from './screens/Workout';
 import FoodScreen from './screens/Food';
 import ProgressScreen from './screens/Progress';
 import OnboardingScreen from './screens/Onboarding';
+import AuthScreen from './screens/Auth';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -41,24 +45,16 @@ const NAV_THEME = {
 type TabIconProps = { focused: boolean; color: string };
 
 function HomeIcon({ focused, color }: TabIconProps) {
-  return (
-    <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.55, color }}>⌂</Text>
-  );
+  return <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.55, color }}>⌂</Text>;
 }
 function WorkoutIcon({ focused, color }: TabIconProps) {
-  return (
-    <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.55, color }}>◎</Text>
-  );
+  return <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.55, color }}>◎</Text>;
 }
 function FoodIcon({ focused, color }: TabIconProps) {
-  return (
-    <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.55, color }}>⊞</Text>
-  );
+  return <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.55, color }}>⊞</Text>;
 }
 function ProgressIcon({ focused, color }: TabIconProps) {
-  return (
-    <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.55, color }}>▲</Text>
-  );
+  return <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.55, color }}>▲</Text>;
 }
 
 function MainTabs() {
@@ -73,39 +69,36 @@ function MainTabs() {
         tabBarHideOnKeyboard: true,
       }}
     >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ tabBarIcon: HomeIcon, tabBarLabel: 'Home' }}
-      />
-      <Tab.Screen
-        name="Workout"
-        component={WorkoutScreen}
-        options={{ tabBarIcon: WorkoutIcon, tabBarLabel: 'Workout' }}
-      />
-      <Tab.Screen
-        name="Food"
-        component={FoodScreen}
-        options={{ tabBarIcon: FoodIcon, tabBarLabel: 'Food' }}
-      />
-      <Tab.Screen
-        name="Progress"
-        component={ProgressScreen}
-        options={{ tabBarIcon: ProgressIcon, tabBarLabel: 'Progress' }}
-      />
+      <Tab.Screen name="Home"     component={HomeScreen}     options={{ tabBarIcon: HomeIcon,    tabBarLabel: 'Home' }} />
+      <Tab.Screen name="Workout"  component={WorkoutScreen}  options={{ tabBarIcon: WorkoutIcon, tabBarLabel: 'Workout' }} />
+      <Tab.Screen name="Food"     component={FoodScreen}     options={{ tabBarIcon: FoodIcon,    tabBarLabel: 'Food' }} />
+      <Tab.Screen name="Progress" component={ProgressScreen} options={{ tabBarIcon: ProgressIcon, tabBarLabel: 'Progress' }} />
     </Tab.Navigator>
   );
 }
 
-function RootNavigator() {
+function LoadingScreen() {
+  return (
+    <View style={{ flex: 1, backgroundColor: Colors.bg, alignItems: 'center', justifyContent: 'center' }}>
+      <ActivityIndicator color={Colors.accent} size="large" />
+    </View>
+  );
+}
+
+function RootNavigator({ session }: { session: Session | null | undefined }) {
   const userProfile = useStore((s) => s.userProfile);
+
+  // undefined = still checking auth session
+  if (session === undefined) return <LoadingScreen />;
+  if (!session) return <AuthScreen />;
+  if (!userProfile) return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+    </Stack.Navigator>
+  );
   return (
     <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
-      {userProfile ? (
-        <Stack.Screen name="Main" component={MainTabs} />
-      ) : (
-        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      )}
+      <Stack.Screen name="Main" component={MainTabs} />
     </Stack.Navigator>
   );
 }
@@ -119,10 +112,34 @@ export default function App() {
     'DMSans-Medium': DMSans_500Medium,
   });
 
+  // undefined = checking, null = no session, Session = authenticated
+  const [session, setSession] = useState<Session | null | undefined>(undefined);
+  const hydrateFromRemote = useStore((s) => s.hydrateFromRemote);
+  const resetApp = useStore((s) => s.resetApp);
+
+  useEffect(() => {
+    // Get current session on mount
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+      if (s) pullUserData().then((data) => { if (data) hydrateFromRemote(data); });
+    });
+
+    // Watch auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
+      setSession(s);
+      if (event === 'SIGNED_IN' && s) {
+        pullUserData().then((data) => { if (data) hydrateFromRemote(data); });
+      }
+      if (event === 'SIGNED_OUT') {
+        resetApp();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded || fontError) {
-      await SplashScreen.hideAsync();
-    }
+    if (fontsLoaded || fontError) await SplashScreen.hideAsync();
   }, [fontsLoaded, fontError]);
 
   if (!fontsLoaded && !fontError) return null;
@@ -132,7 +149,7 @@ export default function App() {
       <SafeAreaProvider>
         <NavigationContainer theme={NAV_THEME}>
           <StatusBar style="light" backgroundColor={Colors.bg} />
-          <RootNavigator />
+          <RootNavigator session={session} />
         </NavigationContainer>
       </SafeAreaProvider>
     </GestureHandlerRootView>
@@ -140,10 +157,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.bg,
-  },
+  root: { flex: 1, backgroundColor: Colors.bg },
   tabBar: {
     backgroundColor: Colors.bg2,
     borderTopColor: Colors.border,
@@ -152,9 +166,5 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 28 : 8,
     paddingTop: 8,
   },
-  tabLabel: {
-    fontFamily: 'DMSans',
-    fontSize: 10,
-    letterSpacing: 0.3,
-  },
+  tabLabel: { fontFamily: 'DMSans', fontSize: 10, letterSpacing: 0.3 },
 });
